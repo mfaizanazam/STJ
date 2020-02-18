@@ -1,15 +1,12 @@
 #Necessary Imports
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
 import math
 import os
-import pywinauto
 from pathlib import Path
 
 #Initiate driver and get URL
@@ -25,8 +22,8 @@ initial_date_id.clear()
 final_date_id.clear()
 
 #date in format dd.mm.yyyy. Insert your date here
-initial_date = '31.01.1999'
-final_date = '02.02.1999'
+initial_date = '01.03.2018'
+final_date = '31.06.2018'
 
 initial_date_id.send_keys(initial_date.replace(".",""))
 final_date_id.send_keys(final_date.replace(".",""))
@@ -102,24 +99,22 @@ for i in range(7):
                     #check for all documents such as Certidão de Julgamento. Sometimes it is 3, in rare cases it is 8. I have mentioned arbitrary 25, you can increase this. The loop will exit safely if documents outside range do not exist
                     for doc in range(1,25):
                         doc_list = '//*[@id="listaAcordaos"]/ol/li/ul/li[' + str(doc) + ']/a'
-                        
+                        alternate_doc_list = '//*[@id="idInterfaceVisualAreaBlocoInterno"]/div/form/ol/li/ul/div/span[1]/li[' + str(doc) + ']/a' 
+                       
                         try:
-                            doc_list_elem = driver.find_element_by_xpath(doc_list)
+                            doc_list_elem = driver.find_element_by_xpath(alternate_doc_list)
+                                                       
                             print("Found " + doc_list_elem.text)
                             
-                            sub_filename = doc_list_elem.text.split(r'/')[0] + "_" + str(count) + "_" + str(j) + '.html'
+                            sub_filename = doc_list_elem.text.split(r'/')[0].split(' ')[0] + "_" + str(count) + "_" + str(j) + '.html'
                             
-                            sub_path_dir = os.path.join(path, doc_list_elem.text.split(r'/')[0])
-                            sub_path = os.path.join(path, doc_list_elem.text.split(r'/')[0], sub_filename) 
+                            sub_path_dir = os.path.join(path, doc_list_elem.text.split(r'/')[0].split(' ')[0])
+                            sub_path = os.path.join(path, doc_list_elem.text.split(r'/')[0].split(' ')[0], sub_filename) 
 
                             doc_list_elem.click()
                             
                             driver.switch_to.window(driver.window_handles[2])
-                      #      pyautogui.hotkey('ctrl', 's')
-                      #      time.sleep(1)
-                      #      pyautogui.typewrite("file name")
-                      #      time.sleep(1)
-                      #      pyautogui.hotkey('enter')
+
     
                             Path(sub_path_dir).mkdir(parents=True, exist_ok=True)
                             
@@ -143,15 +138,15 @@ for i in range(7):
             driver.switch_to.window(driver.window_handles[0])
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             time.sleep(2)
-            if j == 0:
+            if j == 0 or j == (inner_loop-1):
                 driver.find_elements_by_xpath('//*[@id="navegacao"]/a[2]')[1].click()
             else:
                 driver.find_elements_by_xpath('//*[@id="navegacao"]/a[4]')[1].click()
+            
             
         driver.switch_to.window(driver.window_handles[0])
         WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="voltarLista"]/a')))
         driver.find_element_by_xpath('//*[@id="voltarLista"]/a').click()
         
 
-                
 
